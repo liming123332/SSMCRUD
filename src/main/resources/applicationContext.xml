@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<!--事务注解扫描-->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	<!--aop编程使用  使用注解@Aspect @Before("execution(* com.spring02.service.impl.*.add(..))")-->
+	<!--@AfterReturning("execution(* com.spring02.service.impl.*.add(..))")-->
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+	<!--1. 配置需要扫描的包名 -->
+	<context:component-scan base-package="com.ssm">
+	</context:component-scan>
+
+	<!-- 引入db.properties文件 -->
+	<context:property-placeholder location="classpath:db.properties" />
+
+	<!--2. 配置一个c3p0数据源 -->
+	<bean id="c3p0DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${driverClass}" />
+		<property name="jdbcUrl" value="${url}" />
+		<property name="user" value="${name}" />
+		<property name="password" value="${password}" />
+	</bean>
+
+	<!-- 3. 整合Mybatis -->
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:springmybatis.xml"></property>
+		<property name="dataSource" ref="c3p0DataSource"></property>
+		<property name="typeAliasesPackage" value="com.ssm.entity"></property>
+		<!--全局读取mapper.xml-->
+		<property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+	</bean>
+
+	<!--创建一个可以执行批量操作的sqlsession-->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"></constructor-arg>
+		<constructor-arg name="executorType" value="BATCH"></constructor-arg>
+	</bean>
+
+	<!-- 扫描mapper注入用 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.ssm.mapper" />
+	</bean>
+
+
+	<!-- 4. 配置jdbc事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="c3p0DataSource"></property>
+	</bean>
+
+	<!--5. 配置事务管理策略 -->
+	<!-- 	<tx:advice transaction-manager="txManager" id="tx_advice">
+            <tx:attributes>
+                <tx:method name="transfer" propagation="REQUIRED"
+                    isolation="DEFAULT" />
+                <tx:method name="del*" propagation="REQUIRED" isolation="DEFAULT"/>
+                    <tx:method name="add*" propagation="REQUIRED" read-only="false"/> <tx:method
+                    name="update*" propagation="REQUIRED" isolation="DEFAULT"/>
+            </tx:attributes>
+        </tx:advice> -->
+
+
+	<!--6. 事务管理策略作用范围 -->
+	<!-- 	<aop:config>
+            <aop:advisor advice-ref="tx_advice"
+                pointcut="execution(* com.qianfeng.service..*.*(..))" />
+        </aop:config> -->
+
+</beans>
