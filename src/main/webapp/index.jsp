@@ -10,12 +10,59 @@
 <html>
 <head>
     <title>员工列表</title>
-    <link href="static/bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
-    <script src="static/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
-    <script type="text/javascript" src="static/js/jquery-1.8.3.min.js"></script>
     <script type="text/javascript" src="static/js/vue.min.js"></script>
+    <script type="text/javascript" src="static/js/jquery-2.0.min.js"></script>
+    <script type="text/javascript" src="static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <link href="static/bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
 </head>
 <body>
+    <!-- 员工新增 -->
+    <div class="modal fade" id="empAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">员工添加</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">empName</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="empName_add_input" placeholder="empName">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">email</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="email_add_input" placeholder="email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">gender</label>
+                            <div class="col-sm-10">
+                                <label class="radio-inline">
+                                    <input type="radio" name="gender_add_input" id="inlineRadio1" value="M"> 男
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="gender_add_input" id="inlineRadio2" value="F"> 女
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-default">新增</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
   <div id="pageInfo">
       <%--bootstrap栅格系统--%>
       <div class="container">
@@ -28,7 +75,7 @@
           <%--按钮--%>
           <div class="row">
               <div class="col-md-4 col-md-offset-8">
-                  <button class="btn btn-primary">新增</button>
+                  <button class="btn btn-primary" @click="empAdd()">新增</button>
                   <button class="btn btn-danger">删除</button>
               </div>
           </div>
@@ -112,9 +159,9 @@
                         //判断json集合里面的每个对象的gender值 如果是M 就改成女 渲染在页面上 如果是F就改成男
                         for(var i=0;i<vue.pageInfo.list.length;i++){
                             if(vue.pageInfo.list[i].gender=='M'){
-                                vue.pageInfo.list[i].gender='女';
-                            }else{
                                 vue.pageInfo.list[i].gender='男';
+                            }else if(vue.pageInfo.list[i].gender=='F'){
+                                vue.pageInfo.list[i].gender='女';
 
                             }
                         }
@@ -137,16 +184,24 @@
                             //判断json集合里面的每个对象的gender值 如果是M 就改成女 渲染在页面上 如果是F就改成男
                             for(var i=0;i<vue.pageInfo.list.length;i++){
                                 if(vue.pageInfo.list[i].gender=='M'){
-                                    vue.pageInfo.list[i].gender='女';
-                                }else{
                                     vue.pageInfo.list[i].gender='男';
+                                }else if(vue.pageInfo.list[i].gender=='F'){
+                                    vue.pageInfo.list[i].gender='女';
 
                                 }
                             }
                         },
 
                     });
+                },
+                empAdd:function () {
+                    $(function () {
+                        $('#empAdd').modal({
+                            backdrop:false
+                        })
+                    })
                 }
+
             }
         })
     </script>

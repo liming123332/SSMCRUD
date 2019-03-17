@@ -24,6 +24,8 @@ public class EmployeeController {
     public Message getEmps(@RequestParam Integer pn){
         //引入分页插件pageHepler 传入当前页，页码显示多少条
         PageHelper.startPage(pn,5);
+        //排序规则
+        PageHelper.orderBy("emp_id asc");
         List<Employee> emps=employeeService.getAll();
         //封装了详情分页信息，连续传入5页
         PageInfo pageInfo=new PageInfo(emps,5);
