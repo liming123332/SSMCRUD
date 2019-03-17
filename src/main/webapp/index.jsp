@@ -16,6 +16,7 @@
     <link href="static/bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
 </head>
 <body>
+<div id="pageInfo">
     <!-- 员工新增 -->
     <div class="modal fade" id="empAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
@@ -29,41 +30,44 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">empName</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="empName_add_input" placeholder="empName">
+                                <input type="text" class="form-control" name="empName" v-model="inputForm.empName" placeholder="empName">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">email</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="email_add_input" placeholder="email">
+                                <input type="text" class="form-control" name="email" v-model="inputForm.email"  placeholder="email">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">gender</label>
                             <div class="col-sm-10">
                                 <label class="radio-inline">
-                                    <input type="radio" name="gender_add_input" id="inlineRadio1" value="M"> 男
+                                    <input type="radio" name="gender" v-model="inputForm.gender" value="M"> 男
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="gender_add_input" id="inlineRadio2" value="F"> 女
+                                    <input type="radio" name="gender" v-model="inputForm.gender" value="F"> 女
                                 </label>
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-10">
-                                <button type="submit" class="btn btn-default">新增</button>
+                            <label class="col-sm-2 control-label">deptName</label>
+                            <div class="col-sm-4">
+                                <select class="form-control" name="dId" v-model="inputForm.dId">
+                                    <option v-bind:value="dept.deptId" v-for="dept in depts">{{dept.deptName}}</option>
+                                </select>
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" @click="saveEmp()">新增</button>
                 </div>
             </div>
         </div>
     </div>
-  <div id="pageInfo">
+
       <%--bootstrap栅格系统--%>
       <div class="container">
           <%--标题--%>
@@ -146,6 +150,13 @@
             el: '#pageInfo',
             data: {
                 pageInfo: {},
+                depts:{},
+                inputForm:{
+                    empName:'',
+                    email:'',
+                    gender:'M',
+                    dId:'1',
+                }
             },
 
             created: function () {
@@ -162,7 +173,6 @@
                                 vue.pageInfo.list[i].gender='男';
                             }else if(vue.pageInfo.list[i].gender=='F'){
                                 vue.pageInfo.list[i].gender='女';
-
                             }
                         }
                     },
@@ -176,7 +186,7 @@
                     }
                     $.ajax({
                         type:"get",
-                        url: "employee/emps/",
+                        url: "employee/emps",
                         data:{pn:value},
                         success: function (result) {
                             //alert(data);
@@ -199,6 +209,30 @@
                         $('#empAdd').modal({
                             backdrop:false
                         })
+                    });
+                    //每次点击新增按钮要清除上一次的值
+                    vue.inputForm={
+                            gender:'M',
+                            dId:'1',
+                        };
+                    $.ajax({
+                        type:"get",
+                        url:"dept/getDepts",
+                        success:function (result) {
+                            vue.depts=result;
+                        }
+                    })
+                },
+                saveEmp:function () {
+                    alert(JSON.stringify(vue.inputForm));
+                    $.ajax({
+                        type:"post",
+                        url:"employee/emp",
+                        data:JSON.stringify(vue.inputForm),
+                        contentType: "application/json",
+                        success:function (result) {
+                            alert(result.msg);
+                        }
                     })
                 }
 
