@@ -13,6 +13,7 @@ public class MbgTest {
     public static void main(String[] args) throws Exception {
         List<String> warnings = new ArrayList<String>();
         boolean overwrite = true;
+        //指定逆向工程配置文件的所在路径
         File configFile = new File("src/mbg.xml");
         ConfigurationParser cp = new ConfigurationParser(warnings);
         Configuration config = cp.parseConfiguration(configFile);
