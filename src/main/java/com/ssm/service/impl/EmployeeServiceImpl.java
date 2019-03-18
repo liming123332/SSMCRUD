@@ -24,4 +24,9 @@ public class EmployeeServiceImpl implements IEmployeeService {
     public void saveEmp(Employee employee) {
         employeeMapper.insertSelective(employee);
     }
+
+    @Override
+    public Employee getEmpById(int id) {
+        return employeeMapper.selectByPrimaryKeyWithDept(id);
+    }
 }

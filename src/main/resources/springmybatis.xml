@@ -7,7 +7,7 @@
         <!--使用驼峰命名-->
         <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
-    <!--使用逆向工程-->
+    <!--使用分页插件-->
     <plugins>
         <plugin interceptor="com.github.pagehelper.PageInterceptor">
         </plugin>

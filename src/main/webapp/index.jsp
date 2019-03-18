@@ -68,126 +68,153 @@
         </div>
     </div>
 
-      <%--bootstrap栅格系统--%>
-      <div class="container">
-          <%--标题--%>
-          <div class="row">
-              <div class="col-md-12">
-                  <h1>SSMCRUD系统</h1>
-              </div>
-          </div>
-          <%--按钮--%>
-          <div class="row">
-              <div class="col-md-4 col-md-offset-8">
-                  <button class="btn btn-primary" @click="empAdd()">新增</button>
-                  <button class="btn btn-danger">删除</button>
-              </div>
-          </div>
-          <%--表格--%>
-          <div class="row">
-              <div class="col-md-12">
-                  <table class="table table-hover">
-                      <tr>
-                          <th>#</th>
-                          <th>empName</th>
-                          <th>gender</th>
-                          <th>email</th>
-                          <th>deptName</th>
-                          <th>操作</th>
-                      </tr>
-                      <tr v-for="(emp,index) in pageInfo.list">
-                          <th>{{emp.empId}}</th>
-                          <th>{{emp.empName}}</th>
-                          <th>{{emp.gender}}</th>
-                          <th>{{emp.email}}</th>
-                          <th>{{emp.department.deptName}}</th>
-                          <th>
-                              <button class="btn btn-primary btn-sm">
-                                  <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                  编辑
-                              </button>
-                              <button class="btn btn-danger btn-sm">
-                                  <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                  删除
-                              </button>
-                          </th>
-                      </tr>
-                  </table>
-              </div>
-          </div>
-          <%--分页信息--%>
-          <div class="row">
-              <div class="col-md-6">
-                  当前页数{{pageInfo.pageNum}},总{{pageInfo.pages}}页,总记录数:{{pageInfo.total}}
-              </div>
-              <div class="col-md-6">
-                  <nav aria-label="Page navigation">
-                  <ul class="pagination">
-                      <li :class="{'disabled':pageInfo.isFirstPage}"><a href="javascript:;" @click="jump(1)">首页</a></li>
-                      <li :class="{'disabled':pageInfo.isFirstPage}">
-                          <a href="javascript:;" @click="jump(pageInfo.pageNum-1)" aria-label="Previous">
-                              <span aria-hidden="true">&laquo;</span>
-                          </a>
-                      </li>
-                        <%--v-bind:class 同等于 :class--%>
-                        <li :class="{'active':(value==pageInfo.pageNum)}" v-for="value,index in pageInfo.navigatepageNums">
-                            <a href="javascript:;" @click="jump(value)">{{value}}</a>
-                        </li>
-                      <li :class="{'disabled':pageInfo.isLastPage}">
-                          <a href="javascript:;" @click="jump(pageInfo.pageNum+1)" aria-label="Next">
-                              <span aria-hidden="true">&raquo;</span>
-                          </a>
-                      </li>
-                      <li :class="{'disabled':pageInfo.isLastPage}"><a href="javascript:;" @click="jump(pageInfo.pages)">末页</a></li>
-                  </ul>
-              </nav>
-              </div>
-          </div>
-      </div>
-  </div>
-    <script>
-        var vue=new Vue({
-            el: '#pageInfo',
-            data: {
-                pageInfo: {},
-                depts:{},
-                inputForm:{
-                    empName:'',
-                    email:'',
-                    gender:'M',
-                    dId:'1',
-                }
-            },
-
-            created: function () {
-                $.ajax({
-                    type:"get",
-                    url: "employee/emps/",
-                    data:{pn:1},
-                    success: function (result) {
-                        //alert(data);
-                        vue.pageInfo = result.pageInfo;
-                        //判断json集合里面的每个对象的gender值 如果是M 就改成女 渲染在页面上 如果是F就改成男
-                        for(var i=0;i<vue.pageInfo.list.length;i++){
-                            if(vue.pageInfo.list[i].gender=='M'){
-                                vue.pageInfo.list[i].gender='男';
-                            }else if(vue.pageInfo.list[i].gender=='F'){
-                                vue.pageInfo.list[i].gender='女';
-                            }
+    <!-- 员工修改 -->
+    <div class="modal fade" id="empUpdate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel2">员工修改</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">empName</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="empName" v-model="inputForm.empName" placeholder="empName">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">email</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="email" v-model="inputForm.email"  placeholder="email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">gender</label>
+                            <div class="col-sm-10">
+                                <label class="radio-inline">
+                                    <input type="radio" name="gender" v-model="inputForm.gender" value="M"> 男
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="gender" v-model="inputForm.gender" value="F"> 女
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">deptName</label>
+                            <div class="col-sm-4">
+                                <select class="form-control" name="dId" v-model="inputForm.dId">
+                                    <option v-bind:value="inputForm.department.deptId" v-for="dept in depts">{{dept.deptName}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+                <%--bootstrap栅格系统--%>
+                <div class="container">
+                    <%--标题--%>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h1>SSMCRUD系统</h1>
+                        </div>
+                    </div>
+                    <%--按钮--%>
+                    <div class="row">
+                        <div class="col-md-4 col-md-offset-8">
+                            <button class="btn btn-primary" @click="empAdd()">新增</button>
+                            <button class="btn btn-danger">删除</button>
+                        </div>
+                    </div>
+                    <%--表格--%>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-hover">
+                                <tr>
+                                    <th>#</th>
+                                    <th>empName</th>
+                                    <th>gender</th>
+                                    <th>email</th>
+                                    <th>deptName</th>
+                                    <th>操作</th>
+                                </tr>
+                                <tr v-for="(emp,index) in pageInfo.list">
+                                    <th>{{emp.empId}}</th>
+                                    <th>{{emp.empName}}</th>
+                                    <th>{{emp.gender}}</th>
+                                    <th>{{emp.email}}</th>
+                                    <th>{{emp.department.deptName}}</th>
+                                    <th>
+                                        <button class="btn btn-primary btn-sm" @click="empAdd(),empUpdate(emp.empId)">
+                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                            编辑
+                                        </button>
+                                        <button class="btn btn-danger btn-sm">
+                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                            删除
+                                        </button>
+                                    </th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <%--分页信息--%>
+                    <div class="row">
+                        <div class="col-md-6">
+                            当前页数{{pageInfo.pageNum}},总{{pageInfo.pages}}页,总记录数:{{pageInfo.total}}
+                        </div>
+                        <div class="col-md-6">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination">
+                                    <li :class="{'disabled':pageInfo.isFirstPage}"><a href="javascript:;" @click="jump(1)">首页</a></li>
+                                    <li :class="{'disabled':pageInfo.isFirstPage}">
+                                        <a href="javascript:;" @click="jump(pageInfo.pageNum-1)" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <%--v-bind:class 同等于 :class--%>
+                                    <li :class="{'active':(value==pageInfo.pageNum)}" v-for="value,index in pageInfo.navigatepageNums">
+                                        <a href="javascript:;" @click="jump(value)">{{value}}</a>
+                                    </li>
+                                    <li :class="{'disabled':pageInfo.isLastPage}">
+                                        <a href="javascript:;" @click="jump(pageInfo.pageNum+1)" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                    <li :class="{'disabled':pageInfo.isLastPage}"><a href="javascript:;" @click="jump(pageInfo.pages)">末页</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+</div>
+        <script>
+            var vue=new Vue({
+                el: '#pageInfo',
+                data: {
+                    pageInfo: {},
+                    depts:{},
+                    inputForm:{
+                        empId:'',
+                        empName:'',
+                        email:'',
+                        gender:'M',
+                        dId:'1',
+                        department:{
+                            deptId:'1',
+                            deptName:'开发部'
                         }
-                    },
-
-                });
-            },
-            methods:{
-                jump:function (value) {
-                    if(value<=0){
-                        value=1;
                     }
+                },
+
+                created: function () {
                     $.ajax({
                         type:"get",
-                        url: "employee/emps",
-                        data:{pn:value},
+                        url: "employee/emps/",
+                        data:{pn:1},
                         success: function (result) {
                             //alert(data);
                             vue.pageInfo = result.pageInfo;
@@ -197,47 +224,95 @@
                                     vue.pageInfo.list[i].gender='男';
                                 }else if(vue.pageInfo.list[i].gender=='F'){
                                     vue.pageInfo.list[i].gender='女';
-
                                 }
                             }
                         },
 
                     });
                 },
-                empAdd:function () {
-                    $(function () {
-                        $('#empAdd').modal({
-                            backdrop:false
-                        })
-                    });
-                    //每次点击新增按钮要清除上一次的值
-                    vue.inputForm={
+                methods:{
+                    jump:function (value) {
+                        if(value<=0){
+                            value=1;
+                        }else if(value>=vue.pageInfo.pages){
+                            value=vue.pageInfo.pages;
+                        }
+                        $.ajax({
+                            type:"get",
+                            url: "employee/emps",
+                            data:{pn:value},
+                            success: function (result) {
+                                //alert(data);
+                                vue.pageInfo = result.pageInfo;
+                                //判断json集合里面的每个对象的gender值 如果是M 就改成女 渲染在页面上 如果是F就改成男
+                                for(var i=0;i<vue.pageInfo.list.length;i++){
+                                    if(vue.pageInfo.list[i].gender=='M'){
+                                        vue.pageInfo.list[i].gender='男';
+                                    }else if(vue.pageInfo.list[i].gender=='F'){
+                                        vue.pageInfo.list[i].gender='女';
+
+                                    }
+                                }
+                            },
+
+                        });
+                    },
+                    empAdd:function () {
+                        $(function () {
+                            $('#empAdd').modal({
+                                backdrop:false
+                            })
+                        });
+                        //每次点击新增按钮要清除上一次的值
+                        vue.inputForm={
+                            empId:'',
+                            empName:'',
+                            email:'',
                             gender:'M',
                             dId:'1',
+                            department:{
+                                deptId:'1',
+                                deptName:'开发部'
+                            }
                         };
-                    $.ajax({
-                        type:"get",
-                        url:"dept/getDepts",
-                        success:function (result) {
-                            vue.depts=result;
-                        }
-                    })
-                },
-                saveEmp:function () {
-                    alert(JSON.stringify(vue.inputForm));
-                    $.ajax({
-                        type:"post",
-                        url:"employee/emp",
-                        data:JSON.stringify(vue.inputForm),
-                        contentType: "application/json",
-                        success:function (result) {
-                            alert(result.msg);
-                        }
-                    })
-                }
+                        $.ajax({
+                            type:"get",
+                            url:"dept/getDepts",
+                            success:function (result) {
+                                vue.depts=result;
+                            }
+                        })
+                    },
+                    saveEmp:function () {
+                        //alert(JSON.stringify(vue.inputForm));
+                        $.ajax({
+                            type:"post",
+                            url:"employee/emp",
+                            data:JSON.stringify(vue.inputForm),
+                            contentType: "application/json",
+                            success:function (result) {
+                                alert(result.msg);
+                            }
+                        })
+                    },
+                    empUpdate:function (id) {
+                        $(function () {
+                            $('#empAdd').modal({
+                                backdrop:false
+                            })
+                        });
+                        $.ajax({
+                            type:"put",
+                            url:"employee/emp/"+id,
+                            success:function (result) {
+                                //alert(result)
+                                vue.inputForm=result
+                            }
+                        })
+                    }
 
-            }
-        })
-    </script>
+                }
+            })
+        </script>
 </body>
 </html>

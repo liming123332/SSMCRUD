@@ -48,4 +48,16 @@ public class EmployeeController {
         return Message.success();
     }
 
+    /**
+     * 员工查询
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/emp/{id}",method = RequestMethod.PUT)
+    @ResponseBody
+    public Employee saveEmp(@PathVariable int id){
+        Employee employee=employeeService.getEmpById(id);
+        return employee;
+    }
+
 }
